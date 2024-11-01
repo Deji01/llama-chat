@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react';
-import { Message, useChat } from 'ai/react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect } from 'react'
+import { useChat } from 'ai/react'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent } from '@/components/ui/card'
 
 export default function ChatInterface() {
-    const [chatId, setChatId] = useState(null)
+    const [chatId, setChatId] = useState<string | null>(null)
     const supabase = createClientComponentClient()
     const { messages, input, handleInputChange, handleSubmit } = useChat({
         api: '/api/chat',
@@ -28,7 +29,7 @@ export default function ChatInterface() {
             .limit(1)
         if (error) {
             console.error('Error initializing chat:', error)
-        } else if (data.length > 0) {
+        } else if (data && data.length > 0) {
             setChatId(data[0].id)
         } else {
             createNewChat()
@@ -42,12 +43,14 @@ export default function ChatInterface() {
             .select()
         if (error) {
             console.error('Error creating new chat:', error)
-        } else {
+        } else if (data) {
             setChatId(data[0].id)
         }
     }
 
-    const saveMessage = async (message: Message) => {
+    const saveMessage = async (message: any) => {
+        if (!chatId) return
+
         const { error } = await supabase
             .from('messages')
             .insert({
@@ -62,28 +65,29 @@ export default function ChatInterface() {
     }
 
     return (
-        <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <Card className="h-full flex flex-col">
+            <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.map((message) => (
                     <div
                         key={message.id}
-                        className={`p-2 rounded-lg ${message.role === 'user' ? 'bg-blue-100 ml-auto' : 'bg-gray-100'
+                        className={`chat-message ${message.role === 'user' ? 'chat-message-user' : 'chat-message-ai'
                             }`}
                     >
                         {message.content}
                     </div>
                 ))}
-            </div>
-            <form onSubmit={handleSubmit} className="p-4 border-t">
-                <div className="flex space-x-2">
+            </CardContent>
+            <CardContent className="p-4 border-t">
+                <form onSubmit={handleSubmit} className="flex space-x-2">
                     <Input
+                        className="input-primary flex-grow"
                         value={input}
                         onChange={handleInputChange}
                         placeholder="Type your message..."
                     />
-                    <Button type="submit">Send</Button>
-                </div>
-            </form>
-        </div>
+                    <Button className="btn-primary" type="submit">Send</Button>
+                </form>
+            </CardContent>
+        </Card>
     )
 }
