@@ -2,18 +2,25 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClientComponentClient, SupabaseClient } from '@supabase/auth-helpers-nextjs';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MessageSquare, Upload, LogOut } from 'lucide-react';
 import ChatInterface from './ChatInterface';
 import DocumentUpload from './DocumentUpload';
 
+interface Chat {
+  id: string;
+  title: string;
+  last_message_at: string | null;
+  user_id: string;
+}
+
 export default function Dashboard() {
   const [activeView, setActiveView] = useState<'chat' | 'upload'>('chat')
-  const [chats, setChats] = useState([])
+  const [chats, setChats] = useState<Chat[]>([])
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const supabase: SupabaseClient = createClientComponentClient()
 
   useEffect(() => {
     fetchChats()
@@ -26,20 +33,29 @@ export default function Dashboard() {
       .order('last_message_at', { ascending: false })
     if (error) {
       console.error('Error fetching chats:', error)
-    } else {
-      setChats(data)
+    } else if (data) {
+      setChats(data as Chat[])  // casting to Chat[] type
     }
   }
 
   const handleNewChat = async () => {
+    const { data: userData, error: userError } = await supabase.auth.getUser()
+    const userId = userData?.user?.id
+
+    if (userError || !userId) {
+      console.error('Error getting user ID:', userError)
+      return
+    }
+
     const { data, error } = await supabase
       .from('chats')
-      .insert({ user_id: (await supabase.auth.getUser()).data.user?.id })
+      .insert({ user_id: userId })
       .select()
+
     if (error) {
       console.error('Error creating new chat:', error)
-    } else {
-      setChats([data[0], ...chats])
+    } else if (data) {
+      setChats([data[0] as Chat, ...chats])  // casting to Chat type
     }
   }
 
