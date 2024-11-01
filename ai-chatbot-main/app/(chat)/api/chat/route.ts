@@ -1,6 +1,6 @@
 import {
   convertToCoreMessages,
-  generateObject,
+  // generateObject,
   Message,
   StreamData,
   streamObject,
@@ -8,8 +8,9 @@ import {
 } from 'ai';
 import { z } from 'zod';
 
-import { customModel } from '@/ai';
-import { models } from '@/ai/models';
+// import { customModel } from '@/ai';
+import { createOpenAI } from "@ai-sdk/openai";
+// import { models } from '@/ai/models';
 import { canvasPrompt, regularPrompt } from '@/ai/prompts';
 import { auth } from '@/app/(auth)/auth';
 import {
@@ -53,9 +54,14 @@ export async function POST(request: Request) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const model = models.find((model) => model.id === modelId);
+  // const model = models.find((model) => model.id === modelId);
 
-  if (!model) {
+  const together = createOpenAI({
+    apiKey: process.env.TOGETHER_API_KEY ?? "",
+    baseURL: "https://api.together.xyz/v1",
+  })
+
+  if (!together) {
     return new Response('Model not found', { status: 404 });
   }
 
@@ -63,7 +69,8 @@ export async function POST(request: Request) {
   const streamingData = new StreamData();
 
   const result = await streamText({
-    model: customModel(model.apiIdentifier),
+    // model: customModel(model.apiIdentifier),
+    model: together("meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"),
     system: modelId === 'gpt-4o-canvas' ? canvasPrompt : regularPrompt,
     messages: coreMessages,
     maxSteps: 5,
@@ -110,7 +117,8 @@ export async function POST(request: Request) {
           });
 
           const { fullStream } = await streamText({
-            model: customModel(model.apiIdentifier),
+            // model: customModel(model.apiIdentifier),
+            model: together("meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"),
             system:
               'Write about the given topic. Markdown is supported. Use headings wherever appropriate.',
             prompt: title,
@@ -174,7 +182,8 @@ export async function POST(request: Request) {
           });
 
           const { fullStream } = await streamText({
-            model: customModel(model.apiIdentifier),
+            // model: customModel(model.apiIdentifier),
+            model: together("meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"),
             system:
               'You are a helpful writing assistant. Based on the description, please update the piece of writing.',
             messages: [
@@ -239,7 +248,8 @@ export async function POST(request: Request) {
           > = [];
 
           const { elementStream } = await streamObject({
-            model: customModel(model.apiIdentifier),
+            // model: customModel(model.apiIdentifier),
+            model: together("meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"),
             system:
               'You are a help writing assistant. Given a piece of writing, please offer suggestions to improve the piece of writing and describe the change. It is very important for the edits to contain full sentences instead of just words.',
             prompt: document.content,
