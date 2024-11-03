@@ -12,8 +12,8 @@ interface MessageListProps {
   showTimeStamps?: boolean
   isTyping?: boolean
   messageOptions?:
-    | AdditionalMessageOptions
-    | ((message: Message) => AdditionalMessageOptions)
+  | AdditionalMessageOptions
+  | ((message: Message) => AdditionalMessageOptions)
 }
 
 export function MessageList({
@@ -33,6 +33,7 @@ export function MessageList({
         return (
           <ChatMessage
             key={index}
+            animation="slide"
             showTimeStamp={showTimeStamps}
             {...message}
             {...additionalOptions}
