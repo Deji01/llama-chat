@@ -62,6 +62,7 @@ body {
   }
 }
 
+
 @layer base {
   * {
     @apply border-border;
@@ -69,4 +70,13 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.hide-scrollbar {
+  overflow-y: auto;           /* Allow vertical scrolling */
+  scrollbar-width: none;      /* Hide scrollbar in Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;              /* Hide scrollbar in WebKit browsers */
 }
