@@ -34,8 +34,8 @@ export function CustomChat({ chatId, updateChatHistory }: ChatInterfaceProps) {
     return (
         // <div className="flex justify-center items-end h-screen pb-4 w-full">
         <div className="flex flex-col h-full">
-            {/* <div className="flex justify-center items-end h-screen w-full pb-4 px-2 md:px-4"> */}
-            <div className="flex-1 overflow-auto">
+            <div className="flex justify-center items-end h-screen w-full pb-4 px-2 md:px-4">
+            {/* <div className="flex-1 overflow-auto"> */}
                 <ChatContainer className="w-full max-w-[100%]">
 
                     {isEmpty ? (
@@ -51,9 +51,6 @@ export function CustomChat({ chatId, updateChatHistory }: ChatInterfaceProps) {
                             <MessageList messages={messages} isTyping={isTyping} />
                         </ChatMessages>
                     ) : null}
-
-                    <div className="p-4 border-t">
-
                         <ChatForm
                             // className="mt-4 w-full"
                             className="mt-4 w-full max-w-[100%] overflow-hidden"
@@ -73,7 +70,6 @@ export function CustomChat({ chatId, updateChatHistory }: ChatInterfaceProps) {
                                 />
                             )}
                         </ChatForm>
-                    </div>
                 </ChatContainer>
             </div>
         </div>

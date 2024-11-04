@@ -4,6 +4,7 @@ import { CustomChat } from "@/components/CustomChat";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Message as VercelChatMessage } from 'ai';
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 type ChatHistory = {
     id: string
@@ -31,9 +32,15 @@ export default function ChatPage() {
         })
     }
     return (
-        <div className="flex-1 overflow-hidden">
-            {/* <div className="w-full h-screen flex items-end justify-center pb-4 px-2 md:px-4"> */}
-            <CustomChat chatId={chatId} updateChatHistory={updateChatHistory} />
+        <div className="flex flex-col h-full">
+            <div className="flex items-center p-4 border-b">
+                <SidebarTrigger />
+                <h1 className="ml-4 text-xs font-bold">Chat</h1>
+            </div>
+            <div className="w-full h-screen flex-1 overflow-hidden">
+                {/* <div className="w-full h-screen flex items-end justify-center pb-4 px-2 md:px-4"> */}
+                <CustomChat chatId={chatId} updateChatHistory={updateChatHistory} />
+            </div>
         </div>
     )
 }

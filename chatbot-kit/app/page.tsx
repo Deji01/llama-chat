@@ -42,7 +42,7 @@ export default function Home() {
     <div className="flex flex-col h-full">
       <div className="flex items-center p-4 border-b">
         <SidebarTrigger />
-        <h1 className="ml-4 text-xl font-bold">Chat</h1>
+        <h1 className="ml-4 text-xs font-bold">Chat</h1>
       </div>
       {/* <div className="flex-1 overflow-auto"> */}
       <div className="w-full h-screen flex-1 overflow-hidden"> 
