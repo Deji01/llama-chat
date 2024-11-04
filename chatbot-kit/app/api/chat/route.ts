@@ -8,6 +8,7 @@ import { HumanMessage, AIMessage, ChatMessage } from '@langchain/core/messages';
 import { type MongoClient } from 'mongodb';
 import { loadRetriever } from '../utils/vector_store';
 import { loadEmbeddingsModel } from '../utils/embeddings';
+import { Ingest } from "../utils/ingest";
 
 export const runtime =
     process.env.NEXT_PUBLIC_VECTORSTORE === 'mongodb' ? 'nodejs' : 'edge';
@@ -36,8 +37,10 @@ export async function POST(req: NextRequest) {
     let mongoDbClient: MongoClient | undefined;
 
     try {
-        const body = await req.json();
-        const messages = body.messages ?? [];
+        const { messages, chatId } = await req.json();
+        console.log(`messages ${messages}`)
+        console.log(`chatId ${chatId}`)
+        messages ?? [];
         if (!messages.length) {
             throw new Error('No messages provided.');
         }
@@ -45,8 +48,22 @@ export async function POST(req: NextRequest) {
             .slice(0, -1)
             .map(formatVercelMessages);
         const currentMessageContent = messages[messages.length - 1].content;
-        const chatId = body.chatId;
+        const attachments = messages[messages.length - 1]?.experimental_attachments;
+        const pdfData = attachments?.[0];
 
+        try {
+            if (pdfData) {
+                console.log(`pdfData ${pdfData}`)
+                await Ingest(pdfData)
+
+                // const  {text, id} =  await ingestResponse.json();
+            } else {
+                throw new Error('No PDF attachment found');
+            }
+        } catch (error) {
+            console.log('Error in /chat route:', error);
+            throw new Error(`Failed to process request ${error}`);
+        }
         const model = new ChatGroq({
             model: "mixtral-8x7b-32768",
             apiKey: process.env.GROQ_API_KEY,
